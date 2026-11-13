@@ -1,5 +1,10 @@
 # Cloudflare Dynamic DNS for Peplink (concept + working prototype)
 
+[![CI](https://github.com/SoundMatt/cfpl/actions/workflows/ci.yml/badge.svg)](https://github.com/SoundMatt/cfpl/actions/workflows/ci.yml)
+**[Live mockup](https://soundmatt.github.io/cfpl/)**
+
+![Demo: three-step Verify, then the record following the active WAN through failover and failback](docs/demo.gif)
+
 A feature request made runnable: a **WAN-aware Cloudflare DDNS provider** for Peplink routers.
 Today the built-in Dynamic DNS list has no Cloudflare option, and per-WAN DDNS can't follow
 *whichever WAN is currently active* or fall back to a cloud standby (e.g. FusionHub) when every WAN is down.
@@ -34,6 +39,17 @@ docker compose --profile live up -d --build                          # DRY_RUN=1
 Token scope: **Zone → Zone → Read** and **Zone → DNS → Edit**, limited to one zone.
 (The "Edit zone DNS" template alone may not allow the zone lookup; set `CF_ZONE_ID` to skip it.)
 
+## Tests and measurements
+
+```sh
+python -m unittest discover -s tests -v          # logic + daemon against the mock APIs
+python3 scripts/e2e_demo.py                      # against the running demo containers
+python3 scripts/token_matrix.py                  # which token scopes pass which Verify step (real Cloudflare)
+python3 scripts/failover_timing.py --new-ip ...  # unplug a WAN; time record / DNS / HTTP (real router)
+```
+
+`token_matrix.py` and `failover_timing.py` only read from Cloudflare. Results for a real setup go in `docs/results.md`.
+
 ## What it does
 
 - **Verify** in three steps, each reporting its own result: token active, zone visible (ID cached),
@@ -43,6 +59,9 @@ Token scope: **Zone → Zone → Read** and **Zone → DNS → Edit**, limited t
 - Debounces flapping (`DEBOUNCE_POLLS`) and only calls Cloudflare when the answer changes.
 - **Proxied** option: TTL becomes Auto, with a warning that only HTTP/HTTPS is proxied.
 - A/AAAA chosen by address family; several hostnames per token; `host=2` pins a host to WAN 2.
+- **Periodic reconcile** (`RECONCILE_SECONDS`, default 30 min) re-reads Cloudflare and fixes drift.
+- Backs off on Cloudflare rate limits (HTTP 429, honours `Retry-After`).
+- Only touches the hostnames you list, and tags the records it writes with the comment `managed by cfpl`.
 
 ## Layout
 
@@ -51,7 +70,8 @@ Token scope: **Zone → Zone → Read** and **Zone → DNS → Edit**, limited t
 | `ui-mockup/` | Static concept page (GitHub Pages friendly) built on Peplink's CSS |
 | `daemon/` | The prototype (`ddns.py`), Dockerfile |
 | `mock/` | Fake Peplink + Cloudflare APIs and static server for demos/CI |
-| `docs/` | Proposed `ddns.js` change |
+| `tests/`, `scripts/` | Unit/integration tests, e2e check, token matrix, failover timing |
+| `docs/` | Proposed `ddns.js` change, demo GIF, results |
 
 ## Caveats
 

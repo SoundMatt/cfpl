@@ -14,6 +14,7 @@ import time
 import requests
 
 log = logging.getLogger("ddns")
+MANAGED_COMMENT = "managed by cfpl"
 
 
 def env(name, default=None, required=False):
@@ -99,7 +100,13 @@ class Cloudflare:
         self.s.headers["Authorization"] = f"Bearer {token}"
 
     def _call(self, method, path, **kw):
-        r = self.s.request(method, f"{self.api}{path}", timeout=15, **kw)
+        for attempt in range(4):
+            r = self.s.request(method, f"{self.api}{path}", timeout=15, **kw)
+            if r.status_code != 429 or attempt == 3:
+                break
+            wait = min(int(r.headers.get("Retry-After", 2 ** (attempt + 1)) or 2), 60)
+            log.warning("rate limited by Cloudflare; retrying in %ss", wait)
+            time.sleep(wait)
         try:
             j = r.json()
         except ValueError:
@@ -144,7 +151,8 @@ class Cloudflare:
         if not j.get("success"):
             raise RuntimeError(f"list records failed: {j.get('errors')}")
         body = {"type": rtype, "name": host, "content": ip,
-                "proxied": proxied, "ttl": 1 if proxied else ttl}
+                "proxied": proxied, "ttl": 1 if proxied else ttl,
+                "comment": MANAGED_COMMENT}
         recs = j["result"]
         if recs and recs[0]["content"] == ip and recs[0].get("proxied") == proxied:
             return False
@@ -173,6 +181,31 @@ def parse_hosts(s):
     return out
 
 
+def poll_once(pep, cf, hosts, state, standby="", allow_tn=False, proxied=False,
+              ttl=60, debounce=2, dry_run=False):
+    """One poll: read WANs, decide per host, update Cloudflare when stable."""
+    applied, pending = state["applied"], state["pending"]
+    wans = pep.wans()
+    for host, wan_id in hosts:
+        want = pick_ip(wans, wan_id, allow_tn)
+        if want is None and standby and is_publishable(standby, allow_tn):
+            want = standby
+        if want is None:
+            log.warning("%s: no publishable address; leaving record unchanged", host)
+            pending.pop(host, None)
+            continue
+        if applied.get(host) == want:
+            pending.pop(host, None)
+            continue
+        n = pending.get(host, (want, 0))
+        n = (want, n[1] + 1) if n[0] == want else (want, 1)
+        pending[host] = n
+        if n[1] >= debounce:  # same answer N polls in a row: not flapping
+            cf.upsert(host, want, proxied, ttl, dry_run)
+            applied[host] = want
+            pending.pop(host, None)
+
+
 def main():
     logging.basicConfig(level=env("LOG_LEVEL", "INFO"),
                         format="%(asctime)s %(levelname)s %(message)s")
@@ -195,28 +228,16 @@ def main():
     if "--verify" in sys.argv:
         return
 
-    applied, pending = {}, {}
+    reconcile = int(env("RECONCILE_SECONDS", "1800"))
+    state = {"applied": {}, "pending": {}}
+    last_reconcile = time.monotonic()
     while True:
+        if reconcile and time.monotonic() - last_reconcile >= reconcile:
+            state["applied"].clear()  # re-read Cloudflare; upsert is a no-op if already correct
+            last_reconcile = time.monotonic()
+            log.info("periodic reconcile")
         try:
-            wans = pep.wans()
-            for host, wan_id in hosts:
-                want = pick_ip(wans, wan_id, allow_tn)
-                if want is None and standby and is_publishable(standby, allow_tn):
-                    want = standby
-                if want is None:
-                    log.warning("%s: no publishable address; leaving record unchanged", host)
-                    pending.pop(host, None)
-                    continue
-                if applied.get(host) == want:
-                    pending.pop(host, None)
-                    continue
-                n = pending.get(host, (want, 0))
-                n = (want, n[1] + 1) if n[0] == want else (want, 1)
-                pending[host] = n
-                if n[1] >= debounce:  # same answer N polls in a row: not flapping
-                    cf.upsert(host, want, proxied, ttl, dry_run)
-                    applied[host] = want
-                    pending.pop(host, None)
+            poll_once(pep, cf, hosts, state, standby, allow_tn, proxied, ttl, debounce, dry_run)
         except Exception as e:  # keep running through transient failures
             log.error("poll failed: %s", e)
         if "--once" in sys.argv:

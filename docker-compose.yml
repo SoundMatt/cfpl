@@ -12,11 +12,17 @@ services:
     profiles: [demo]
     build: { context: ., dockerfile: mock/Dockerfile }
     ports: ["8080:8080"]   # UI mockup at http://localhost:8080/
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8080/demo/state')"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
 
   ddns-demo:
     profiles: [demo]
     build: { context: ., dockerfile: daemon/Dockerfile }
-    depends_on: [mock]
+    depends_on:
+      mock: { condition: service_healthy }
     restart: on-failure
     environment:
       PEPLINK_URL: http://mock:8080
@@ -30,3 +36,4 @@ services:
       STANDBY_IP: 192.0.2.99
       POLL_INTERVAL: "2"
       DEBOUNCE_POLLS: "2"
+      RECONCILE_SECONDS: "30"
