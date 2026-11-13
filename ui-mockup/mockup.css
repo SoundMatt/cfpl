@@ -1,0 +1,26 @@
+/* Overrides so Peplink's own CSS (peplink-ui/*.css) renders standalone. */
+.top_menu_logo{background:url(peplink-ui/logo.svg) center/contain no-repeat}
+.top_menu_panel,.mobile_top_menu{background-image:linear-gradient(#3a3a3a,#000)}
+.concept-banner{background:#fff3cd;color:#664d03;border-bottom:1px solid #e0c36a;font:13px Verdana,Arial,sans-serif;padding:6px 12px;text-align:center}
+.concept-banner a{color:inherit}
+#mainContent{padding:16px 24px 40px}
+.ui-dialog.mock{position:static;display:block;width:700px;max-width:100%;margin:0 0 24px;left:auto;top:auto}
+.ui-dialog.mock .ui-dialog-content{padding:8px 12px;max-height:none;overflow:visible}
+.elided{color:#777;font-style:italic;text-align:center;padding:8px;font-size:12px}
+.new-badge{background:#e8590c;color:#fff;border-radius:3px;font-size:10px;padding:1px 5px;margin-left:6px;vertical-align:middle}
+.cf-row.hide,.ddns_panel.hide{display:none}
+.verify-steps{margin:6px 0 0;padding:0;list-style:none;font-size:12px}
+.verify-steps li{padding:2px 0}
+.verify-steps .ok{color:#1a7f37}.verify-steps .bad{color:#b42318}.verify-steps .pend{color:#777}
+.verify-steps .hint{display:block;margin-left:18px;color:#7a4b00}
+.note{font-size:11px;color:#555;margin-top:3px}
+.sim{width:700px;max-width:100%;font:12px Verdana,Arial,sans-serif}
+.sim h3{margin:0;background:#444;color:#fff;padding:5px 8px;font-size:13px}
+.sim table{width:100%;border-collapse:collapse;background:#fff}
+.sim td,.sim th{border:1px solid #bbb;padding:4px 6px;text-align:left}
+.sim .led{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.led.green{background:#2da44e}.led.yellow{background:#e3b341}.led.red{background:#cf222e}
+.sim .rec{background:#f6f8fa;padding:8px;border:1px solid #bbb;border-top:0}
+.sim code{background:#eaeef2;padding:1px 4px;border-radius:3px}
+.sim .log{height:110px;overflow:auto;background:#0d1117;color:#c9d1d9;padding:6px;font:11px ui-monospace,Menlo,monospace;border:1px solid #bbb;border-top:0}
+.sim button{margin:0 4px 0 0}

@@ -1,0 +1,26 @@
+.ui-widget-header {
+	background: #222;
+	color: #FFB81C;
+}
+
+.ui-widget button.fa {
+	font-family: "Font Awesome 5 Pro";
+}
+
+.ui-slider-horizontal .ui-slider-handle { top: -0.5em; }
+.ui-slider-horizontal { background: #777; height: 0.4em; }
+.ui-slider .ui-slider-handle {background-image: url(en/images/slider.png); border: none; background-color:transparent;}
+.ui-slider .ui-state-hover {background-image: url(en/images/slider-1.png);}
+
+.ui-front { z-index: 2000; }
+
+/* QQ */
+body.cnggba .ui-widget,
+body.cnggba .ui-widget input, body.patton .ui-widget select, body.patton .ui-widget textarea, body.patton .ui-widget button {
+	font-family:Arial;
+}
+
+body.cnggba .ui-widget-header {
+	background-color: #069;
+	color: #FFF;
+}

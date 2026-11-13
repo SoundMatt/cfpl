@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html class="desktop_view">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloudflare DDNS Concept</title>
+<!-- Peplink's own stylesheets, reused for an unofficial concept mockup. -->
+<link rel="stylesheet" href="peplink-ui/default.css">
+<link rel="stylesheet" href="peplink-ui/column_grouped_table.css">
+<link rel="stylesheet" href="peplink-ui/jquery-ui.css">
+<link rel="stylesheet" href="peplink-ui/jquery-ui-custom.css">
+<link rel="stylesheet" href="peplink-ui/header.css">
+<link rel="stylesheet" href="peplink-ui/menu.css">
+<link rel="stylesheet" href="peplink-ui/main.css">
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body class="">
+<div class="concept-banner">Unofficial concept mockup of a native Cloudflare Dynamic DNS provider. Not a Peplink product and not endorsed by Peplink. Nothing here talks to a real router.</div>
+
+<div class="top_menu_panel"><div class="menu_1024px"><div id="top_menu" class="top_menu"><div class="top_menu_logo"></div>
+<ul class="menu_item menu_action"><div><div>Dashboard</div></div></ul>
+<ul class="menu_item menu_action"><div><div>SF Connect</div></div></ul>
+<ul class="menu_item menu_selected"><div><div>Network</div></div></ul>
+<ul class="menu_item menu_action"><div><div>Advanced</div></div></ul>
+<ul class="menu_item menu_action"><div><div>AP</div></div></ul>
+<ul class="menu_item menu_action"><div><div>Switch</div></div></ul>
+<ul class="menu_item menu_action"><div><div>System</div></div></ul>
+<ul class="menu_item menu_action menu_end"><div><div>Status</div></div></ul>
+<ul class="menu_item menu_apply menu_end"><div><div>Apply Changes</div></div></ul></div></div></div>
+
+<div class="fixedmaxwidth">
+<div class="left_container font_body"><div class="leftmenu_container"><div class="leftmenu"><ul>
+<li class="lv0">LAN</li><li class="lv1 left_menu_clickable">Network Settings</li><li class="lv1 left_menu_clickable">Port Settings</li><li class="lv1 left_menu_clickable">Captive Portal</li>
+<li class="lv0 left_menu_clickable left_menu_highlight">WAN</li></ul></div></div></div>
+
+<div id="mainContent">
+<div class="ui-dialog mock ui-corner-all ui-widget ui-widget-content ui-front">
+ <div class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix"><span class="ui-dialog-title">WAN Connection Settings</span></div>
+ <div class="ui-dialog-content ui-widget-content">
+  <div class="elided">… connection method, health check, additional IP address … (unchanged)</div>
+  <table class="form_table sep dynamic_dns_panel ctrl" id="ddns">
+   <thead><tr class="tabletitle"><td colspan="2">Dynamic DNS Settings</td></tr></thead>
+
+   <tr class="tablecontent2 ddns_main_panel ddns_panel"><td class="tabletitle2 form_legend"><div class="form_field">Service Provider</div></td>
+    <td><select id="provider" style="width:200px">
+      <option value="disable">Disabled</option><option value="changeip">changeip.com</option><option value="dyndns">dyndns.org</option>
+      <option value="noip">no-ip.org</option><option value="dnsomatic">DNS-O-Matic</option><option value="cloudflare" selected>Cloudflare</option><option value="others">Others...</option></select>
+      <span class="new-badge" id="newbadge">NEW (concept)</span></td></tr>
+
+   <!-- Legacy providers: same rows as ddns.js -->
+   <tr class="tablecontent2 ddns_panel legacy"><td class="tabletitle2 form_legend" id="legacyUserLbl">Username</td><td><input style="width:200px" maxlength="50"></td></tr>
+   <tr class="tablecontent2 ddns_panel legacy"><td class="tabletitle2 form_legend">Password</td><td><input type="password" style="width:200px" maxlength="50"></td></tr>
+   <tr class="tablecontent2 ddns_panel legacy"><td class="tabletitle2 form_legend">Hosts</td><td><textarea style="width:200px;height:90px"></textarea></td></tr>
+
+   <!-- Cloudflare rows (the proposal) -->
+   <tr class="tablecontent2 ddns_panel cf-row"><td class="tabletitle2 form_legend"><div class="form_field">API Token</div></td>
+    <td><input id="cfToken" type="password" style="width:260px" maxlength="80" placeholder="Scoped token: Zone Read + DNS Edit">
+    <div class="note">Create a token limited to one zone with <b>Zone → Zone → Read</b> and <b>Zone → DNS → Edit</b>.</div></td></tr>
+   <tr class="tablecontent2 ddns_panel cf-row"><td class="tabletitle2 form_legend"><div class="form_field">Zone</div></td>
+    <td style="white-space:nowrap"><input id="cfZone" style="width:160px" value="example.com"> &nbsp;Zone ID <input id="cfZoneId" style="width:170px" placeholder="optional, skips lookup"></td></tr>
+   <tr class="tablecontent2 ddns_panel cf-row"><td class="tabletitle2 form_legend"><div class="form_field">Hosts</div></td>
+    <td><textarea id="cfHosts" style="width:260px;height:60px">home.example.com
+vpn.example.com</textarea></td></tr>
+   <tr class="tablecontent2 ddns_panel cf-row"><td class="tabletitle2 form_legend"><div class="form_field">Proxied</div></td>
+    <td><label><input type="checkbox" id="cfProxied"> Route through Cloudflare (orange cloud)</label>
+    <div class="note" id="proxyNote">DNS only. Works for any protocol (VPN, SSH, SpeedFusion, game servers).</div></td></tr>
+   <tr class="tablecontent2 ddns_panel cf-row"><td class="tabletitle2 form_legend"><div class="form_field">TTL</div></td>
+    <td><select id="cfTtl"><option value="60" selected>60 seconds</option><option value="120">2 minutes</option><option value="300">5 minutes</option><option value="3600">1 hour</option><option value="1">Auto</option></select></td></tr>
+   <tr class="tablecontent2 ddns_panel cf-row"><td class="tabletitle2 form_legend"><div class="form_field">Update Mode</div></td>
+    <td><label><input type="radio" name="mode" value="this"> This WAN's IP only (like today)</label><br>
+        <label><input type="radio" name="mode" value="follow" checked> Follow the active WAN</label><br>
+        <label><input type="radio" name="mode" value="standby"> Follow the active WAN, and when every WAN is down use: </label>
+        <input id="cfStandby" style="width:130px" value="192.0.2.99" placeholder="standby IP">
+        <div class="note">Standby IP e.g. a cloud FusionHub Elastic IP. CGNAT and private WAN addresses are never published.</div></td></tr>
+   <tr class="tablecontent2 ddns_panel cf-row"><td class="tabletitle2 form_legend"><div class="form_field">Verify</div></td>
+    <td><button type="button" id="verifyBtn">Verify settings</button>
+      <label class="note">&nbsp;Test token as: <select id="scenario"><option value="ok">valid, Zone Read + DNS Edit</option><option value="template">&ldquo;Edit zone DNS&rdquo; template only</option><option value="wrongzone">valid, wrong zone</option><option value="revoked">revoked token</option></select></label>
+      <ul class="verify-steps" id="steps"></ul></td></tr>
+  </table>
+ </div>
+ <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix"><div class="ui-dialog-buttonset"><button type="button" class="ui-button ui-corner-all ui-widget">Save</button><button type="button" class="ui-button ui-corner-all ui-widget">Cancel</button></div></div>
+</div>
+
+<div class="sim" id="sim">
+ <h3>Simulated router (what the provider would see)</h3>
+ <table><thead><tr><th>WAN</th><th>Priority</th><th>Status</th><th>IP</th><th></th></tr></thead><tbody id="wanRows"></tbody></table>
+ <div class="rec" id="rec"></div>
+ <div class="log" id="log"></div>
+</div>
+</div>
+</div>
+<script src="mockup.js"></script>
+</body>
+</html>

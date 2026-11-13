@@ -1,0 +1,45 @@
+/* tab_bar - Experimental Tab Menu */
+ul.tab_bar {
+	list-style:none;
+	margin:0;
+	border-width:0;
+	padding:0 0 0 10px;
+	background-color:#FFF;
+	overflow:hidden;
+	box-shadow:inset 0 -2px #000;
+}
+ul.tab_bar li {
+	float:left;
+	border-style:solid;
+	border-width:1px 1px 2px;
+	border-color:#777 #AAA #000 #CCC;
+	border-radius:5px 5px 0 0;
+	padding:4px 8px 8px;
+/*
+	font-weight:bold;
+*/
+	height:1em;
+	background-color:#EEE;
+	cursor:pointer;
+/*
+	text-shadow:1px 1px rgba(0,0,0,0.2);
+	box-shadow:-3px 8px 8px rgba(255,255,255,0.6) inset;
+*/
+}
+ul.tab_bar li.tab_action:hover {
+	border-color:#000 #000 #CCC #000;
+	background-color:#CCC;
+}
+ul.tab_bar li.highlighted {
+	border-color:#000 #000 #FFF #000;
+	background-color:#FFF;
+/*
+	border-color:#000 #000 #8BF #000;
+	background-color:#8BF;
+*/
+}
+
+
+.T, .Text, .TV {
+        visibility: hidden;
+}

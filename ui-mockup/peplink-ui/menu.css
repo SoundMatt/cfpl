@@ -1,0 +1,44 @@
+.bug20295 {
+	position: absolute;
+	right:20px;
+	top:0;
+	z-Index:100;
+
+	max-width:300px;
+	overflow:hidden;
+	white-space:nowrap;
+	text-overflow: ellipsis;
+
+	padding:0 10px;
+	border-bottom-left-radius:0.5em;
+	border-bottom-right-radius:0.5em;
+	background-color:grey;
+
+	font-family: Arial;
+	font-weight:normal;
+	color: white;
+}
+.mobile_top_menu .bug20295 {
+	right: 3px;
+	max-width: 40vw;
+}
+.left_container {
+	background-color: #E6E6E6;
+	border: 1px solid #999;
+	border-top: 0;
+	min-height: calc(100vh - 57px); /* minus top menu height */
+	box-sizing: border-box;
+}
+.leftmenu {
+	border: 0;
+}
+.leftmenu li:first-child {
+	border-top: 0;
+}
+.leftmenu_lang > * {
+	margin: 0 0.2em;
+	vertical-align: middle;
+}
+.leftmenu_lang > .fa {
+	font-size: 1.75em;
+}

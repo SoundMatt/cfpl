@@ -1,0 +1,33 @@
+table.columnGroupedTable {
+	table-layout:fixed;
+}
+table.columnGroupedTable td[data-table-group] {
+	display:none;
+}
+table.columnGroupedTable[data-table-group="0"] td[data-table-group="0"],
+table.columnGroupedTable[data-table-group="1"] td[data-table-group="1"],
+table.columnGroupedTable[data-table-group="2"] td[data-table-group="2"],
+table.columnGroupedTable[data-table-group="3"] td[data-table-group="3"],
+table.columnGroupedTable[data-table-group="4"] td[data-table-group="4"],
+table.columnGroupedTable[data-table-group="5"] td[data-table-group="5"],
+table.columnGroupedTable[data-table-group="6"] td[data-table-group="6"],
+table.columnGroupedTable[data-table-group="7"] td[data-table-group="7"],
+table.columnGroupedTable[data-table-group="8"] td[data-table-group="8"],
+table.columnGroupedTable[data-table-group="9"] td[data-table-group="9"] {
+	display:table-cell;
+}
+table.columnGroupedTable col[data-table-group] {
+	display:none;
+}
+table.columnGroupedTable[data-table-group="0"] col[data-table-group="0"],
+table.columnGroupedTable[data-table-group="1"] col[data-table-group="1"],
+table.columnGroupedTable[data-table-group="2"] col[data-table-group="2"],
+table.columnGroupedTable[data-table-group="3"] col[data-table-group="3"],
+table.columnGroupedTable[data-table-group="4"] col[data-table-group="4"],
+table.columnGroupedTable[data-table-group="5"] col[data-table-group="5"],
+table.columnGroupedTable[data-table-group="6"] col[data-table-group="6"],
+table.columnGroupedTable[data-table-group="7"] col[data-table-group="7"],
+table.columnGroupedTable[data-table-group="8"] col[data-table-group="8"],
+table.columnGroupedTable[data-table-group="9"] col[data-table-group="9"] {
+	display:table-column;
+}

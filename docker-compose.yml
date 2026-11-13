@@ -1,0 +1,32 @@
+# Two ways to run:
+#   Demo (no router, no Cloudflare account):  docker compose --profile demo up --build
+#   Real (your router + your Cloudflare zone): cp .env.example .env && docker compose --profile live up -d --build
+services:
+  ddns:
+    profiles: [live]
+    build: { context: ., dockerfile: daemon/Dockerfile }
+    env_file: .env
+    restart: unless-stopped
+
+  mock:
+    profiles: [demo]
+    build: { context: ., dockerfile: mock/Dockerfile }
+    ports: ["8080:8080"]   # UI mockup at http://localhost:8080/
+
+  ddns-demo:
+    profiles: [demo]
+    build: { context: ., dockerfile: daemon/Dockerfile }
+    depends_on: [mock]
+    restart: on-failure
+    environment:
+      PEPLINK_URL: http://mock:8080
+      PEPLINK_USER: admin
+      PEPLINK_PASS: demo
+      CF_API: http://mock:8080/client/v4
+      CF_TOKEN: demo-token
+      CF_ZONE: example.com
+      CF_HOSTS: home.example.com
+      ALLOW_TEST_NETS: "1"       # demo IPs are RFC 5737 documentation ranges; CGNAT/private still blocked
+      STANDBY_IP: 192.0.2.99
+      POLL_INTERVAL: "2"
+      DEBOUNCE_POLLS: "2"
